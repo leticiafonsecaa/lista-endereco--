@@ -4,100 +4,124 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 
 const regrasFormulario = z.object({
-  nome: z.string().min(1, "Nome obrigatório"),
+  nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
-  cep: z.string().min(1, "CEP obrigatório"),
-  rua: z.string().min(1, "Rua obrigatória"),
-  numero: z.string().min(1, "Número obrigatório"),
-  bairro: z.string().min(1, "Bairro obrigatório"),
-  cidade: z.string().min(1, "Cidade obrigatória"),
-  uf: z.string().length(2, "Use 2 letras")
+  cep: z.string().min(1, "CEP é obrigatório"),
+  rua: z.string().min(1, "Rua é obrigatória"),
+  numero: z.string().min(1, "Número é obrigatório"),
+  bairro: z.string().min(1, "Bairro é obrigatório"),
+  cidade: z.string().min(1, "Cidade é obrigatória"),
+  uf: z.string().min(2, "UF obrigatória").max(2, "Use a sigla")
 })
 
-type FormType = z.infer<typeof regrasFormulario>
+type FormularioType = z.infer<typeof regrasFormulario>
 
-function App() {
-  const [enderecos, setEnderecos] = useState<FormType[]>([])
+export function App() {
+  const [enderecos, setEnderecos] = useState<FormularioType[]>([])
 
-  const formulario = useForm<FormType>({
+  const formulario = useForm<FormularioType>({
     resolver: zodResolver(regrasFormulario)
   })
 
-  function cadastrarEndereco(dados: FormType) {
+  function enviarFormulario(dados: FormularioType) {
     setEnderecos([...enderecos, dados])
     formulario.reset()
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center p-6">
-      <div className="w-full max-w-3xl bg-white p-6 rounded-md shadow-sm">
-        <h1 className="text-xl font-bold mb-6">Cadastro de Endereços</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-2xl font-bold mb-4">Cadastro de Endereços</h1>
 
-        <form
-          onSubmit={formulario.handleSubmit(cadastrarEndereco)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          noValidate
+      <form
+        onSubmit={formulario.handleSubmit(enviarFormulario)}
+        className="bg-white p-6 rounded shadow grid grid-cols-1 md:grid-cols-2 gap-4"
+        noValidate
+      >
+        <div>
+          <label>Nome</label>
+          <input className="input" {...formulario.register("nome")} />
+          <p className="erro">{formulario.formState.errors.nome?.message}</p>
+        </div>
+
+        <div>
+          <label>Email</label>
+          <input className="input" {...formulario.register("email")} />
+          <p className="erro">{formulario.formState.errors.email?.message}</p>
+        </div>
+
+        <div>
+          <label>CEP</label>
+          <input className="input" {...formulario.register("cep")} />
+          <p className="erro">{formulario.formState.errors.cep?.message}</p>
+        </div>
+
+        <div>
+          <label>Rua</label>
+          <input className="input" {...formulario.register("rua")} />
+          <p className="erro">{formulario.formState.errors.rua?.message}</p>
+        </div>
+
+        <div>
+          <label>Número</label>
+          <input className="input" {...formulario.register("numero")} />
+          <p className="erro">{formulario.formState.errors.numero?.message}</p>
+        </div>
+
+        <div>
+          <label>Bairro</label>
+          <input className="input" {...formulario.register("bairro")} />
+          <p className="erro">{formulario.formState.errors.bairro?.message}</p>
+        </div>
+
+        <div>
+          <label>Cidade</label>
+          <input className="input" {...formulario.register("cidade")} />
+          <p className="erro">{formulario.formState.errors.cidade?.message}</p>
+        </div>
+
+        <div>
+          <label>UF</label>
+          <input className="input" {...formulario.register("uf")} />
+          <p className="erro">{formulario.formState.errors.uf?.message}</p>
+        </div>
+
+        <button
+          type="submit"
+          className="col-span-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
-          {[
-            ["nome", "Nome"],
-            ["email", "Email"],
-            ["cep", "CEP"],
-            ["rua", "Rua"],
-            ["numero", "Número"],
-            ["bairro", "Bairro"],
-            ["cidade", "Cidade"],
-            ["uf", "UF"]
-          ].map(([campo, label]) => (
-            <div key={campo} className="flex flex-col">
-              <label className="text-sm mb-1">{label}</label>
-              <input
-                className="border rounded px-3 py-2 text-sm"
-                {...formulario.register(campo as keyof FormType)}
-              />
-              <span className="text-red-500 text-xs">
-                {formulario.formState.errors[campo as keyof FormType]?.message}
-              </span>
-            </div>
-          ))}
+          Cadastrar
+        </button>
+      </form>
 
-          <button
-            type="submit"
-            className="md:col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-          >
-            Cadastrar
-          </button>
-        </form>
+      <h2 className="text-xl font-bold mt-8 mb-4">Endereços Cadastrados</h2>
 
-        <h2 className="text-lg font-semibold mt-8 mb-4">
-          Endereços cadastrados
-        </h2>
+      <ul className="space-y-3">
+        {enderecos.map((endereco, index) => (
+          <li key={index} className="bg-white p-4 rounded shadow">
+            <p><strong>Nome:</strong> {endereco.nome}</p>
+            <p><strong>Email:</strong> {endereco.email}</p>
+            <p>
+              <strong>Endereço:</strong> {endereco.rua}, {endereco.numero} -{" "}
+              {endereco.bairro}, {endereco.cidade}/{endereco.uf}
+            </p>
+            <p><strong>CEP:</strong> {endereco.cep}</p>
+          </li>
+        ))}
+      </ul>
 
-        {enderecos.length === 0 && (
-          <p className="text-sm text-gray-500">
-            Nenhum endereço cadastrado.
-          </p>
-        )}
-
-        <ul className="space-y-3">
-          {enderecos.map((endereco, index) => (
-            <li
-              key={index}
-              className="border rounded p-3 text-sm"
-            >
-              <p><strong>Nome:</strong> {endereco.nome}</p>
-              <p><strong>Email:</strong> {endereco.email}</p>
-              <p>
-                <strong>Endereço:</strong>{" "}
-                {endereco.rua}, {endereco.numero} –{" "}
-                {endereco.bairro}, {endereco.cidade}/{endereco.uf}
-              </p>
-              <p><strong>CEP:</strong> {endereco.cep}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <style>{`
+        .input {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+        }
+        .erro {
+          color: red;
+          font-size: 12px;
+        }
+      `}</style>
     </div>
   )
 }
-
 export default App
