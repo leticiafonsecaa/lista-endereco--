@@ -1,123 +1,103 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import * as z from 'zod'
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 
+const regrasFormulario = z.object({
+  nome: z.string().min(1, "Nome obrigatório"),
+  email: z.string().email("Email inválido"),
+  cep: z.string().min(1, "CEP obrigatório"),
+  rua: z.string().min(1, "Rua obrigatória"),
+  numero: z.string().min(1, "Número obrigatório"),
+  bairro: z.string().min(1, "Bairro obrigatório"),
+  cidade: z.string().min(1, "Cidade obrigatória"),
+  uf: z.string().length(2, "Use 2 letras")
+})
 
+type FormType = z.infer<typeof regrasFormulario>
 
-export function App() {
-  const regrasFormulario = z.object({
-    nome: z.string().min(1, 'Este campo é obrigatório.').max(20, 'Máximo de 20 caracteres.'),
-    email: z.email('Campo obrigatório.'),
-    cep: z.string().min(1, 'Campo obrigatório.'),
-    rua: z.string().min(1, 'Campo obrigatório.'),
-    numero: z.string().min(1, 'Campo obrigatório.'),
-    bairro: z.string().min(1, 'Campo obrigatório.'),
-    cidade: z.string().min(1, 'Campo obrigatório.'),
-    uf: z.string().min(1, 'Campo obrigatório.').max(2, 'Utilizar sigla.')
-  })
-
-  type FormType = z.infer<typeof regrasFormulario>
-
-  function enviaFormulario(dados: FormType) {
-    // adiciona o novo endereço na lista
-    setEnderecos((listaAntiga) => [...listaAntiga, dados])
-
-    // limpa o formulário
-    formulario.reset()
-  }
-
-
+function App() {
   const [enderecos, setEnderecos] = useState<FormType[]>([])
 
   const formulario = useForm<FormType>({
-    resolver: zodResolver(regrasFormulario),
+    resolver: zodResolver(regrasFormulario)
   })
-  
+
+  function cadastrarEndereco(dados: FormType) {
+    setEnderecos([...enderecos, dados])
+    formulario.reset()
+  }
 
   return (
-    <>
-      <div>
-        <h1 className="font-sans">Cadastro de Endereços</h1>
+    <div className="min-h-screen bg-gray-100 flex justify-center p-6">
+      <div className="w-full max-w-3xl bg-white p-6 rounded-md shadow-sm">
+        <h1 className="text-xl font-bold mb-6">Cadastro de Endereços</h1>
 
-        <form onSubmit={formulario.handleSubmit(enviaFormulario)}>
-
-          {/*nome*/} 
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">Nome</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('nome')} />
-              {formulario.formState.errors.nome && (<p className="text-red-500 text-sm">{formulario.formState.errors.nome.message}</p>)}
+        <form
+          onSubmit={formulario.handleSubmit(cadastrarEndereco)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          noValidate
+        >
+          {[
+            ["nome", "Nome"],
+            ["email", "Email"],
+            ["cep", "CEP"],
+            ["rua", "Rua"],
+            ["numero", "Número"],
+            ["bairro", "Bairro"],
+            ["cidade", "Cidade"],
+            ["uf", "UF"]
+          ].map(([campo, label]) => (
+            <div key={campo} className="flex flex-col">
+              <label className="text-sm mb-1">{label}</label>
+              <input
+                className="border rounded px-3 py-2 text-sm"
+                {...formulario.register(campo as keyof FormType)}
+              />
+              <span className="text-red-500 text-xs">
+                {formulario.formState.errors[campo as keyof FormType]?.message}
+              </span>
             </div>
-            
-           {/*email*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('email')} />
-              {formulario.formState.errors.email && (<p className="text-red-500 text-sm">{formulario.formState.errors.email.message}</p>)}
-            </div>
+          ))}
 
-            {/*CEP*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">CEP</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('cep')} />
-              {formulario.formState.errors.cep && (<p className="text-red-500 text-sm">{formulario.formState.errors.cep.message}</p>)}
-            </div>
-
-            {/*Rua*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">Rua</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('rua')} />
-              {formulario.formState.errors.rua && (<p className="text-red-500 text-sm">{formulario.formState.errors.rua.message}</p>)}
-            </div>
-
-            {/*Numero*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">Numero</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('numero')} />
-              {formulario.formState.errors.numero && (<p className="text-red-500 text-sm">{formulario.formState.errors.numero.message}</p>)}
-            </div>
-
-            {/*Bairro*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">Bairro</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('bairro')} />
-              {formulario.formState.errors.bairro && (<p className="text-red-500 text-sm">{formulario.formState.errors.bairro.message}</p>)}
-            </div>
-
-            {/*Cidade*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">Cidade</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('cidade')} />
-              {formulario.formState.errors.cidade && (<p className="text-red-500 text-sm">{formulario.formState.errors.cidade.message}</p>)}
-            </div>
-
-            {/*Uf*/} 
-            <div className="col-span-12">
-              <label htmlFor="nome" className="text-sm font-medium text-gray-700 mb-1">UF</label>
-              <input className="w-full border px-2 py-1"{...formulario.register('rua')} />
-              {formulario.formState.errors.rua && (<p className="text-red-500 text-sm">{formulario.formState.errors.rua.message}</p>)}
-            </div>
-          </div>
-
-          <div>
-            <button
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition font-medium"
-              type="reset">
-              Limpar
-            </button>
-            <button
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium"
-              type="submit">
-              Enviar
-            </button>
-          </div>
-
+          <button
+            type="submit"
+            className="md:col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Cadastrar
+          </button>
         </form>
+
+        <h2 className="text-lg font-semibold mt-8 mb-4">
+          Endereços cadastrados
+        </h2>
+
+        {enderecos.length === 0 && (
+          <p className="text-sm text-gray-500">
+            Nenhum endereço cadastrado.
+          </p>
+        )}
+
+        <ul className="space-y-3">
+          {enderecos.map((endereco, index) => (
+            <li
+              key={index}
+              className="border rounded p-3 text-sm"
+            >
+              <p><strong>Nome:</strong> {endereco.nome}</p>
+              <p><strong>Email:</strong> {endereco.email}</p>
+              <p>
+                <strong>Endereço:</strong>{" "}
+                {endereco.rua}, {endereco.numero} –{" "}
+                {endereco.bairro}, {endereco.cidade}/{endereco.uf}
+              </p>
+              <p><strong>CEP:</strong> {endereco.cep}</p>
+            </li>
+          ))}
+        </ul>
       </div>
-    </>
+    </div>
   )
 }
 
 export default App
-  
