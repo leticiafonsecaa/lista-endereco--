@@ -1,7 +1,7 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const regrasFormulario = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -11,25 +11,25 @@ const regrasFormulario = z.object({
   numero: z.string().min(1, "Número é obrigatório"),
   bairro: z.string().min(1, "Bairro é obrigatório"),
   cidade: z.string().min(1, "Cidade é obrigatória"),
-  uf: z.string().min(2, "UF obrigatória").max(2, "Use a sigla")
-})
+  uf: z.string().min(2, "UF obrigatória").max(2, "Use a sigla"),
+});
 
-type FormularioType = z.infer<typeof regrasFormulario>
+type FormularioType = z.infer<typeof regrasFormulario>;
 
 export function App() {
-  const [enderecos, setEnderecos] = useState<FormularioType[]>([])
+  const [enderecos, setEnderecos] = useState<FormularioType[]>([]);
 
   const formulario = useForm<FormularioType>({
-    resolver: zodResolver(regrasFormulario)
-  })
+    resolver: zodResolver(regrasFormulario),
+  });
 
   function enviarFormulario(dados: FormularioType) {
-    setEnderecos([...enderecos, dados])
-    formulario.reset()
+    setEnderecos([...enderecos, dados]);
+    formulario.reset();
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="grid grid-cols-12 gap-4">
       <h1 className="text-2xl font-bold mb-4">Cadastro de Endereços</h1>
 
       <form
@@ -98,13 +98,19 @@ export function App() {
       <ul className="space-y-3">
         {enderecos.map((endereco, index) => (
           <li key={index} className="bg-white p-4 rounded shadow">
-            <p><strong>Nome:</strong> {endereco.nome}</p>
-            <p><strong>Email:</strong> {endereco.email}</p>
+            <p>
+              <strong>Nome:</strong> {endereco.nome}
+            </p>
+            <p>
+              <strong>Email:</strong> {endereco.email}
+            </p>
             <p>
               <strong>Endereço:</strong> {endereco.rua}, {endereco.numero} -{" "}
               {endereco.bairro}, {endereco.cidade}/{endereco.uf}
             </p>
-            <p><strong>CEP:</strong> {endereco.cep}</p>
+            <p>
+              <strong>CEP:</strong> {endereco.cep}
+            </p>
           </li>
         ))}
       </ul>
@@ -122,6 +128,6 @@ export function App() {
         }
       `}</style>
     </div>
-  )
+  );
 }
-export default App
+export default App;
