@@ -1,133 +1,204 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 
-const regrasFormulario = z.object({
+const schema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
-  cep: z.string().min(1, "CEP é obrigatório"),
-  rua: z.string().min(1, "Rua é obrigatória"),
-  numero: z.string().min(1, "Número é obrigatório"),
+  cep: z.string().min(1, "CEP é obrigatório").min(8, "CEP inválido. Ex: 00000-000"),
+  rua: z.string().min(1, "Rua é obrigatório"),
   bairro: z.string().min(1, "Bairro é obrigatório"),
-  cidade: z.string().min(1, "Cidade é obrigatória"),
-  uf: z.string().min(2, "UF obrigatória").max(2, "Use a sigla"),
-});
+  cidade: z.string().min(1, "Cidade é obrigatório"),
+  uf: z.string().min(1, "UF é obrigatório").max(2, "Use a sigla"),
+})
 
-type FormularioType = z.infer<typeof regrasFormulario>;
+type FormData = z.infer<typeof schema>
 
-export function App() {
-  const [enderecos, setEnderecos] = useState<FormularioType[]>([]);
+function App() {
+  const [lista, setLista] = useState<FormData[]>([])
 
-  const formulario = useForm<FormularioType>({
-    resolver: zodResolver(regrasFormulario),
-  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
 
-  function enviarFormulario(dados: FormularioType) {
-    setEnderecos([...enderecos, dados]);
-    formulario.reset();
+  const onSubmit = (data: FormData) => {
+    setLista((prev) => [...prev, data])
+    reset()
+  }
+
+  const handleClear = () => {
+    reset()
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4">
-      <h1 className="text-2xl font-bold mb-4">Cadastro de Endereços</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 gap-8">
 
-      <form
-        onSubmit={formulario.handleSubmit(enviarFormulario)}
-        className="bg-white p-6 rounded shadow grid grid-cols-1 md:grid-cols-2 gap-4"
-        noValidate
-      >
-        <div>
-          <label>Nome</label>
-          <input className="input" {...formulario.register("nome")} />
-          <p className="erro">{formulario.formState.errors.nome?.message}</p>
+      <div className="bg-violet-200 p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800"> Cadastro de Endereço</h1>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+
+          {/* NOME */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700"> Nome</label>
+            <input
+              {...register("nome")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite seu nome"
+            />
+            {errors.nome && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.nome.message}
+              </span>
+            )}
+          </div>
+
+          {/* EMAIL */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700">Email</label>
+            <input
+              {...register("email")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite seu email"
+            />
+            {errors.email && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </span>
+            )}
+          </div>
+
+          {/* CEP */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700">CEP</label>
+            <input
+              {...register("cep")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite seu CEP"
+            />
+            {errors.cep && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.cep.message}
+              </span>
+            )}
+          </div>
+
+          {/* RUA */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700">Rua</label>
+            <input
+              {...register("rua")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite a Rua"
+            />
+            {errors.rua && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.rua.message}
+              </span>
+            )}
+          </div>
+
+          {/* BAIRRO */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700">Bairro</label>
+            <input
+              {...register("bairro")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite o Bairro"
+            />
+            {errors.bairro && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.bairro.message}
+              </span>
+            )}
+          </div>
+
+          {/* CIDADE */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700">Cidade</label>
+            <input
+              {...register("cidade")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite a Cidade"
+            />
+            {errors.cidade && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.cidade.message}
+              </span>
+            )}
+          </div>
+
+          {/* UF */}
+          <div className="flex flex-col text-left">
+            <label className="mb-1 text-sm font-medium text-gray-700">UF</label>
+            <input
+              {...register("uf")}
+              className="border border-violet-700 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite o UF Ex: RJ"
+            />
+            {errors.uf && (
+              <span className="text-red-500 text-sm mt-1">
+                {errors.uf.message}
+              </span>
+            )}
+          </div>
+
+          {/* BOTÕES */}
+          <div className="flex gap-4 mt-4">
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold"
+            >
+              Enviar
+            </button>
+
+            <button
+              type="button"
+              onClick={handleClear}
+              className="flex-1 bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition duration-300 font-semibold"
+            >
+              Limpar
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      {/* LISTA DE DADOS */}
+      {lista.length > 0 && (
+        <div className="bg-violet-200 p-6 rounded-2xl shadow-lg w-full max-w-md">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Dados Enviados
+          </h2>
+
+          <ul className="flex flex-col gap-3">
+            {lista.map((item, index) => (
+              <li
+                key={index}
+                className="border p-3 rounded-lg bg-violet-100"
+              >
+                <p><strong>Nome:</strong> {item.nome}</p>
+                <p><strong>Email:</strong> {item.email}</p>
+                <p><strong>CEP:</strong> {item.cep}</p>
+                <p><strong>Rua:</strong> {item.rua}</p>
+                <p><strong>Bairro:</strong> {item.bairro}</p>
+                <p><strong>Cidade:</strong> {item.cidade}</p>
+                <p><strong>UF:</strong> {item.uf}</p>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        <div>
-          <label>Email</label>
-          <input className="input" {...formulario.register("email")} />
-          <p className="erro">{formulario.formState.errors.email?.message}</p>
-        </div>
-
-        <div>
-          <label>CEP</label>
-          <input className="input" {...formulario.register("cep")} />
-          <p className="erro">{formulario.formState.errors.cep?.message}</p>
-        </div>
-
-        <div>
-          <label>Rua</label>
-          <input className="input" {...formulario.register("rua")} />
-          <p className="erro">{formulario.formState.errors.rua?.message}</p>
-        </div>
-
-        <div>
-          <label>Número</label>
-          <input className="input" {...formulario.register("numero")} />
-          <p className="erro">{formulario.formState.errors.numero?.message}</p>
-        </div>
-
-        <div>
-          <label>Bairro</label>
-          <input className="input" {...formulario.register("bairro")} />
-          <p className="erro">{formulario.formState.errors.bairro?.message}</p>
-        </div>
-
-        <div>
-          <label>Cidade</label>
-          <input className="input" {...formulario.register("cidade")} />
-          <p className="erro">{formulario.formState.errors.cidade?.message}</p>
-        </div>
-
-        <div>
-          <label>UF</label>
-          <input className="input" {...formulario.register("uf")} />
-          <p className="erro">{formulario.formState.errors.uf?.message}</p>
-        </div>
-
-        <button
-          type="submit"
-          className="col-span-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Cadastrar
-        </button>
-      </form>
-
-      <h2 className="text-xl font-bold mt-8 mb-4">Endereços Cadastrados</h2>
-
-      <ul className="space-y-3">
-        {enderecos.map((endereco, index) => (
-          <li key={index} className="bg-white p-4 rounded shadow">
-            <p>
-              <strong>Nome:</strong> {endereco.nome}
-            </p>
-            <p>
-              <strong>Email:</strong> {endereco.email}
-            </p>
-            <p>
-              <strong>Endereço:</strong> {endereco.rua}, {endereco.numero} -{" "}
-              {endereco.bairro}, {endereco.cidade}/{endereco.uf}
-            </p>
-            <p>
-              <strong>CEP:</strong> {endereco.cep}
-            </p>
-          </li>
-        ))}
-      </ul>
-
-      <style>{`
-        .input {
-          width: 100%;
-          padding: 8px;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-        }
-        .erro {
-          color: red;
-          font-size: 12px;
-        }
-      `}</style>
+      )}
     </div>
-  );
+  )
 }
-export default App;
+
+export default App
+
+ {/* CODIGO FEITO OUVINDO BAD BUNNY */}
