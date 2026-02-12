@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 
-const schema = z.object({
+const regrasFormulario = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
   email: z.string().email("Email inválido"),
   cep: z.string().min(1, "CEP é obrigatório").min(8, "CEP inválido. Ex: 00000-000"),
@@ -13,22 +13,22 @@ const schema = z.object({
   uf: z.string().min(1, "UF é obrigatório").max(2, "Use a sigla"),
 })
 
-type FormData = z.infer<typeof schema>
+type TypeForm = z.infer<typeof regrasFormulario>
 
 function App() {
-  const [lista, setLista] = useState<FormData[]>([])
+  const [lista, setLista] = useState<TypeForm[]>([])
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    register, //conecta o campo
+    handleSubmit, //valida os dados
+    reset, //limpa os campos
+    formState: { errors },  //é um objeto que contém os erros de validação
+  } = useForm<TypeForm>({
+    resolver: zodResolver(regrasFormulario), //resolver: define qual validador será usado; zodResolver: conecta Zod ao React Hook Form
   })
 
-  const onSubmit = (data: FormData) => {
-    setLista((prev) => [...prev, data])
+  const onSubmit = (data: TypeForm) => { //Recebe os dados do formulário
+    setLista((prev) => [...prev, data]) // (prev) Pegue o valor anterior da lista; [...prev, data] Crie um novo array com tudo que já existia + o novo item
     reset()
   }
 
@@ -200,5 +200,3 @@ function App() {
 }
 
 export default App
-
- {/* CODIGO FEITO OUVINDO BAD BUNNY */}
